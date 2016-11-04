@@ -15,7 +15,7 @@ public abstract class DrawableObject {
 
 	//проверка колизий(объекты столкнулись)
     public boolean isIntersects(DrawableObject target) {
-        return (x + width) >= target.x && x <= (target.x + target.width) &&
-                (y + height) >= target.y && y <= (target.y + target.height);
+        return (x + width) > target.x && x < (target.x + target.width) &&
+                (y + height) > target.y && y < (target.y + target.height);
     }
 }

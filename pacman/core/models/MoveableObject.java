@@ -1,14 +1,11 @@
 package pacman.core.models;
 
 import pacman.world.models.Direction;
-import pacman.world.models.Wall;
-
-import java.awt.*;
 
 
 public abstract class MoveableObject extends DrawableObject {
     public Direction direction=Direction.NONE;
-    private static final int DEFAULT_VELOCITY = 3;
+    private static final int DEFAULT_VELOCITY = 5;
 
 
     public void move(){

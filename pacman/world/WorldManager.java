@@ -21,8 +21,8 @@ public class WorldManager extends BaseManager {
     private static final int BLUE_ENIMIES_COUNT = 30;
 	*/
 
-    public static final int CELL_WIDTH = 50;
-    public static final int CELL_HEIGHT = 50;
+    public static final int CELL_WIDTH = 40;
+    public static final int CELL_HEIGHT = 40;
 
     // =============================================================================================
     // FIELDS
@@ -38,7 +38,7 @@ public class WorldManager extends BaseManager {
     public WorldManager() {
         keys = new boolean[65536];
         player = new Pacman();
-        field = new ArrayList<Wall>();
+        field = new ArrayList<>();
 		initField();
         /*enemiesVelocity = RandomUtils.nextBoolean() ? ENEMIES_FORMATION_X_VELOCITY : -ENEMIES_FORMATION_X_VELOCITY;*/
 
@@ -72,8 +72,8 @@ public class WorldManager extends BaseManager {
     // PLAYER
     // =============================================================================================
     private void initPlayer() {
-        player.x = width / 2 - player.width / 2;
-        player.y = height/2 - player.height/2;
+        player.x = 360;
+        player.y = 480;
     }
 
     private void updatePlayer() {
@@ -91,38 +91,31 @@ public class WorldManager extends BaseManager {
         }
     }
     private void collision(){
-
-            switch (player.direction) {
-                /*case DOWN:
-                    for (Wall brick : field)
-                        if (player.isIntersects(brick)&& brick.state == EnemyState.WALL)
-                            player.y=brick.y-player.height;
-                        break;
-                case TOP:
-                    for (Wall brick : field)
-                        if (player.isIntersects(brick)&& brick.state == EnemyState.WALL)
-                            player.y=brick.y+player.height;
-                    break;
-                case LEFT:
-                    for (Wall brick : field)
-                        if (player.isIntersects(brick)&& brick.state == EnemyState.WALL)
-                            player.x=brick.x+player.width;
-                    break;*/
-                case RIGHT:
-                    for (Wall brick : field)
-                        if (player.isIntersects(brick)&& brick.state == EnemyState.WALL)
-                            player.x=brick.x-player.width;
-                    break;
-            }
-
-            /*if (player.direction != Direction.DOWN && enemy.state != EnemyState.DYING && bullet.isIntersects(enemy)) {
-                enemy.kill();
-                isKilled = true;
-                break out_of_loop;
-            }
-            */
+        switch (player.direction) {
+            case DOWN:
+                for (Wall brick : field)
+                    if (player.isIntersects(brick)&& brick.state == EnemyState.WALL)
+                        player.y=brick.y-player.height;
+                break;
+            case TOP:
+                for (Wall brick : field)
+                    if (player.isIntersects(brick)&& brick.state == EnemyState.WALL)
+                        player.y=brick.y+player.height;
+                break;
+            case LEFT:
+                for (Wall brick : field)
+                    if (player.isIntersects(brick)&& brick.state == EnemyState.WALL)
+                        player.x=brick.x+player.width;
+                break;
+            case RIGHT:
+                for (Wall brick : field)
+                    if (player.isIntersects(brick)&& brick.state == EnemyState.WALL)
+                        player.x=brick.x-player.width;
+                break;
+        }
     }
     //добавить: если стена пересекается с игроком, то делать скорость в этом направлении равной 0.
+
 	// =============================================================================================
     //FIELD
     // =============================================================================================
