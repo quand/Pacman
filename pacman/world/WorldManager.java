@@ -30,6 +30,7 @@ public class WorldManager extends BaseManager {
     private boolean[] keys;
     private Pacman player;
     private ArrayList<Wall> field;
+    private ArrayList<Corn> corns;
     private int enemiesVelocity;
     private boolean holdEnemies;
     // =============================================================================================
@@ -39,6 +40,7 @@ public class WorldManager extends BaseManager {
         keys = new boolean[65536];
         player = new Pacman();
         field = new ArrayList<>();
+        corns = new ArrayList<>();
 		initField();
         /*enemiesVelocity = RandomUtils.nextBoolean() ? ENEMIES_FORMATION_X_VELOCITY : -ENEMIES_FORMATION_X_VELOCITY;*/
 
@@ -64,8 +66,11 @@ public class WorldManager extends BaseManager {
     public void render(Graphics g) 
 	{
         player.draw(g);
-        for (Wall enemy : field) {
-            enemy.draw(g);
+        for (Wall brick : field) {
+            brick.draw(g);
+        }
+        for (Wall corn : corns) {
+            corn.draw(g);
         }
     }
     // =============================================================================================
@@ -79,6 +84,7 @@ public class WorldManager extends BaseManager {
     private void updatePlayer() {
         player.move();
         collision();
+        teleport();
         if (player.x < 0) {
             player.x = 0;
         } else if (player.x + player.width > width) {
@@ -112,6 +118,18 @@ public class WorldManager extends BaseManager {
                     if (player.isIntersects(brick)&& brick.state == EnemyState.WALL)
                         player.x=brick.x-player.width;
                 break;
+        }
+    }
+    private void teleport(){
+        if(player.x+player.width>760&&player.y==400)
+        {
+            player.y=400;
+            player.x=0;
+        }
+        if(player.x<0&&player.y==400)
+        {
+            player.y=400;
+            player.x=720;
         }
     }
     //добавить: если стена пересекается с игроком, то делать скорость в этом направлении равной 0.
@@ -151,6 +169,8 @@ public class WorldManager extends BaseManager {
             {
                 if(matrix[row][column]=='1')
                     field.add(new Brick(row, column));
+                if (matrix[row][column]=='0')
+                    corns.add(new Corn(row,column));
             }
         }
     }
@@ -162,6 +182,11 @@ public class WorldManager extends BaseManager {
 		for (Wall brick : field) {
             brick.x = brick.column * CELL_WIDTH ;
             brick.y =  brick.row * CELL_HEIGHT ;
+        }
+        for (Wall corn : corns)
+        {
+            corn.x = corn.column*CELL_WIDTH+5;
+            corn.y = corn.row*CELL_HEIGHT+5;
         }
 	}
 

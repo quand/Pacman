@@ -1,7 +1,14 @@
 package pacman.world.models;
 
-/**
- * Created by user142 on 19.10.2016.
- */
-public class Corn {
+import pacman.utils.ResourcesLoader;
+
+public class Corn extends Wall {
+    public Corn(int row, int column){
+        super(row,column);
+        this.state = EnemyState.CORN;
+        sprite = ResourcesLoader.loadDrawableIgnoreErrors("Corn.png");
+        width = sprite.getWidth(null);
+        height = sprite.getHeight(null);
+    }
+
 }
