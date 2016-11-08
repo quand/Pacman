@@ -11,13 +11,13 @@ public abstract class Wall extends DrawableObject {
     // =============================================================================================
     public final int row;
     public final int column;
-    public EnemyState state = EnemyState.NOTHING;
-    protected Image sprite;
+    public ObjectState state = ObjectState.NOTHING;
+    Image sprite;
     //protected SpriteSheetAnimator livingAnimator;
 	// =============================================================================================
     // CONSTRUCTOR
     // =============================================================================================
-    public Wall(int row, int column){
+    Wall(int row, int column){
 		this.row = row;
 		this.column = column;
 	}

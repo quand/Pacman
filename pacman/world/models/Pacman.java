@@ -19,7 +19,7 @@ public class Pacman extends MoveableObject {
     }
 
     public Pacman() {
-        sprite = ResourcesLoader.loadDrawableIgnoreErrors("Pacman state1.png");
+        sprite = ResourcesLoader.loadDrawableIgnoreErrors("Pacman state1 right.png");
         width = sprite.getWidth(null);
         height = sprite.getHeight(null);
     }

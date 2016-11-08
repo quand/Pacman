@@ -1,6 +1,6 @@
 package pacman.world.models;
 
-public enum EnemyState {
+public enum ObjectState {
     WALL,
     CORN,
     NOTHING

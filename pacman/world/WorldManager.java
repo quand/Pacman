@@ -21,8 +21,8 @@ public class WorldManager extends BaseManager {
     private static final int BLUE_ENIMIES_COUNT = 30;
 	*/
 
-    public static final int CELL_WIDTH = 40;
-    public static final int CELL_HEIGHT = 40;
+    public static final int CELL_WIDTH = 30;
+    public static final int CELL_HEIGHT = 30;
 
     // =============================================================================================
     // FIELDS
@@ -100,36 +100,53 @@ public class WorldManager extends BaseManager {
         switch (player.direction) {
             case DOWN:
                 for (Wall brick : field)
-                    if (player.isIntersects(brick)&& brick.state == EnemyState.WALL)
+                    if (brick.state==ObjectState.WALL&&brick.x+brick.width-player.x==5)
+                        player.x=brick.x+brick.width;
+                    else if (brick.state==ObjectState.WALL&&player.x+player.width-brick.x==5)
+                        player.x=brick.x-CELL_WIDTH;
+                    else if (player.isIntersects(brick)&& brick.state == ObjectState.WALL)
                         player.y=brick.y-player.height;
                 break;
             case TOP:
                 for (Wall brick : field)
-                    if (player.isIntersects(brick)&& brick.state == EnemyState.WALL)
+                    if (brick.state==ObjectState.WALL&&brick.x+brick.width-player.x==5)
+                        player.x=brick.x+brick.width;
+                    else if (brick.state==ObjectState.WALL&&player.x+player.width-brick.x==5)
+                        player.x=brick.x-CELL_WIDTH;
+                    else if (player.isIntersects(brick)&& brick.state == ObjectState.WALL)
                         player.y=brick.y+player.height;
                 break;
+
             case LEFT:
                 for (Wall brick : field)
-                    if (player.isIntersects(brick)&& brick.state == EnemyState.WALL)
+                    if (brick.state==ObjectState.WALL&&player.y+player.height-brick.y==5)
+                        player.y=brick.y-CELL_HEIGHT;
+                    else if (brick.state==ObjectState.WALL&&(brick.y+brick.height)-player.y==5)
+                        player.y=brick.y+brick.height;
+                    else if (player.isIntersects(brick)&& brick.state == ObjectState.WALL)
                         player.x=brick.x+player.width;
                 break;
             case RIGHT:
                 for (Wall brick : field)
-                    if (player.isIntersects(brick)&& brick.state == EnemyState.WALL)
+                    if (brick.state==ObjectState.WALL&&player.y+player.height-brick.y==5)
+                        player.y=brick.y-CELL_HEIGHT;
+                    else if (brick.state==ObjectState.WALL&&(brick.y+brick.height)-player.y==5)
+                        player.y=brick.y+brick.height;
+                    else if (player.isIntersects(brick)&& brick.state == ObjectState.WALL)
                         player.x=brick.x-player.width;
                 break;
         }
     }
     private void teleport(){
-        if(player.x+player.width>760&&player.y==400)
+        if(player.x+player.width>19*CELL_WIDTH&&player.y==10*CELL_HEIGHT)
         {
-            player.y=400;
+            player.y=10*CELL_HEIGHT;
             player.x=0;
         }
-        if(player.x<0&&player.y==400)
+        if(player.x<0&&player.y==10*CELL_HEIGHT)
         {
-            player.y=400;
-            player.x=720;
+            player.y=10*CELL_HEIGHT;
+            player.x=18*CELL_WIDTH;
         }
     }
     //добавить: если стена пересекается с игроком, то делать скорость в этом направлении равной 0.
@@ -185,8 +202,8 @@ public class WorldManager extends BaseManager {
         }
         for (Wall corn : corns)
         {
-            corn.x = corn.column*CELL_WIDTH+5;
-            corn.y = corn.row*CELL_HEIGHT+5;
+            corn.x = corn.column*CELL_WIDTH+10;
+            corn.y = corn.row*CELL_HEIGHT+10;
         }
 	}
 
