@@ -16,7 +16,7 @@ public class Brick extends Wall {
     // =============================================================================================
     public Brick(int row, int column){
 		super(row,column);
-		this.state = ObjectState.WALL;
+		state = ObjectState.WALL;
 		sprite = ResourcesLoader.loadDrawableIgnoreErrors("walltexture.png");
 		width = sprite.getWidth(null);
 		height = sprite.getHeight(null);

@@ -3,6 +3,5 @@
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/pacman/MainWindow.java" charset="windows-1251" />
     <file url="file://$PROJECT_DIR$/pacman/core/GameManager.java" charset="windows-1251" />
-    <file url="file://$PROJECT_DIR$/pacman/core/views/BaseView.java" charset="windows-1251" />
   </component>
 </project>

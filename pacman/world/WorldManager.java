@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
+import static pacman.core.models.MoveableObject.DEFAULT_VELOCITY;
 
 
 public class WorldManager extends BaseManager {
@@ -15,6 +16,7 @@ public class WorldManager extends BaseManager {
     // =============================================================================================
     private static final int COLUMNS_COUNT = 19;
     private static final int ROW_COUNT = 22;
+    private static final int MISTAKE = DEFAULT_VELOCITY*2;
     /*
 	private static final int RED_ENIMIES_COUNT = 6;
     private static final int PURPLE_ENIMIES_COUNT = 8;
@@ -53,6 +55,7 @@ public class WorldManager extends BaseManager {
     public void init() {
         initPlayer();
         initBricksPosition();
+        initCornPosition();
     }
 
     @Override
@@ -77,64 +80,68 @@ public class WorldManager extends BaseManager {
     // PLAYER
     // =============================================================================================
     private void initPlayer() {
-        player.x = 360;
-        player.y = 480;
+        player.x = 9 * CELL_WIDTH;
+        player.y = 12 * CELL_HEIGHT;
     }
 
     private void updatePlayer() {
         player.move();
         collision();
         teleport();
-        if (player.x < 0) {
-            player.x = 0;
-        } else if (player.x + player.width > width) {
-            player.x = width - player.width;
-        }
-        if (player.y < 0) {
-            player.y = 0;
-        } else if (player.y + player.height > height) {
-            player.y = height - player.height;
-        }
+        eatCorn();
+        player.setImage(player.direction);
     }
+
     private void collision(){
         switch (player.direction) {
             case DOWN:
                 for (Wall brick : field)
-                    if (brick.state==ObjectState.WALL&&brick.x+brick.width-player.x==5)
+                    if (brick.x+brick.width-player.x<=MISTAKE&&brick.x+brick.width-player.x>0)
                         player.x=brick.x+brick.width;
-                    else if (brick.state==ObjectState.WALL&&player.x+player.width-brick.x==5)
+                    else if (player.x+player.width-brick.x<=MISTAKE&&player.x+player.width-brick.x>0)
                         player.x=brick.x-CELL_WIDTH;
-                    else if (player.isIntersects(brick)&& brick.state == ObjectState.WALL)
+                    else if (player.isIntersects(brick))
                         player.y=brick.y-player.height;
                 break;
             case TOP:
                 for (Wall brick : field)
-                    if (brick.state==ObjectState.WALL&&brick.x+brick.width-player.x==5)
+                    if (brick.x+brick.width-player.x<=MISTAKE&&brick.x+brick.width-player.x>0)
                         player.x=brick.x+brick.width;
-                    else if (brick.state==ObjectState.WALL&&player.x+player.width-brick.x==5)
+                    else if (player.x+player.width-brick.x<=MISTAKE&&player.x+player.width-brick.x>0)
                         player.x=brick.x-CELL_WIDTH;
-                    else if (player.isIntersects(brick)&& brick.state == ObjectState.WALL)
+                    else if (player.isIntersects(brick))
                         player.y=brick.y+player.height;
                 break;
 
             case LEFT:
                 for (Wall brick : field)
-                    if (brick.state==ObjectState.WALL&&player.y+player.height-brick.y==5)
+                    if (player.y+player.height-brick.y<=MISTAKE&&player.y+player.height-brick.y>0)
                         player.y=brick.y-CELL_HEIGHT;
-                    else if (brick.state==ObjectState.WALL&&(brick.y+brick.height)-player.y==5)
+                    else if ((brick.y+brick.height)-player.y<=MISTAKE&&(brick.y+brick.height)-player.y>0)
                         player.y=brick.y+brick.height;
-                    else if (player.isIntersects(brick)&& brick.state == ObjectState.WALL)
+                    else if (player.isIntersects(brick))
                         player.x=brick.x+player.width;
                 break;
             case RIGHT:
                 for (Wall brick : field)
-                    if (brick.state==ObjectState.WALL&&player.y+player.height-brick.y==5)
+                    if (player.y+player.height-brick.y<=MISTAKE&&player.y+player.height-brick.y>0)
                         player.y=brick.y-CELL_HEIGHT;
-                    else if (brick.state==ObjectState.WALL&&(brick.y+brick.height)-player.y==5)
+                    else if ((brick.y+brick.height)-player.y<=MISTAKE&&(brick.y+brick.height)-player.y>0)
                         player.y=brick.y+brick.height;
-                    else if (player.isIntersects(brick)&& brick.state == ObjectState.WALL)
+                    else if (player.isIntersects(brick))
                         player.x=brick.x-player.width;
                 break;
+        }
+    }
+
+    private void eatCorn(){
+        for (Wall corn : corns)
+        {
+            if (player.isIntersects(corn))
+            {
+                player.score+=100;
+                corn.state=ObjectState.NOTHING;
+            }
         }
     }
     private void teleport(){
@@ -169,7 +176,7 @@ public class WorldManager extends BaseManager {
 		{'1','1','1','1','0','1','0','1','1','*','1','1','0','1','0','1','1','1','1'},
 		{'*','*','*','*','0','0','0','1','*','*','*','1','0','0','0','*','*','*','*'},
 		{'1','1','1','1','0','1','0','1','1','1','1','1','0','1','0','1','1','1','1'},
-		{'*','*','*','1','0','1','0','0','0','0','0','0','0','1','0','1','*','*','*'},
+		{'*','*','*','1','0','1','0','0','0','*','0','0','0','1','0','1','*','*','*'},
 		{'1','1','1','1','0','1','0','1','1','1','1','1','0','1','0','1','1','1','1'},
 		{'1','0','0','0','0','0','0','0','0','1','0','0','0','0','0','0','0','0','1'},
 		{'1','0','1','1','0','1','1','1','0','1','0','1','1','1','0','1','1','0','1'},
@@ -192,14 +199,16 @@ public class WorldManager extends BaseManager {
         }
     }
 
-	private void initBricksPosition(){
-		int gridWidth = COLUMNS_COUNT * CELL_WIDTH + (COLUMNS_COUNT - 1);
-        int leftMargin = (width - gridWidth) / 2;
-		
-		for (Wall brick : field) {
-            brick.x = brick.column * CELL_WIDTH ;
-            brick.y =  brick.row * CELL_HEIGHT ;
+	private void initBricksPosition() {
+            for (Wall brick : field) {
+            brick.x = brick.column * CELL_WIDTH;
+            brick.y = brick.row * CELL_HEIGHT;
         }
+    }
+    //============================================================================================
+    //Corns
+    //============================================================================================
+    private void initCornPosition(){
         for (Wall corn : corns)
         {
             corn.x = corn.column*CELL_WIDTH+10;

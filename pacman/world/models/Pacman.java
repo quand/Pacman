@@ -7,13 +7,8 @@ import java.awt.*;
 
 public class Pacman extends MoveableObject {
 
-    public int currentRow;
-    public int currentColumn;
-    public int nextRow;
-    public int nextColumn;
 
-    private Image sprite;
-
+    public int score;
     public int getCenterX() {
         return x + width / 2;
     }
@@ -22,6 +17,26 @@ public class Pacman extends MoveableObject {
         sprite = ResourcesLoader.loadDrawableIgnoreErrors("Pacman state1 right.png");
         width = sprite.getWidth(null);
         height = sprite.getHeight(null);
+    }
+    public void setImage(Direction direction){
+        switch (direction){
+            case DOWN:
+                sprite = ResourcesLoader.loadDrawableIgnoreErrors("Pacman state1 down.png");
+                break;
+            case TOP:
+                sprite = ResourcesLoader.loadDrawableIgnoreErrors("Pacman state1 up.png");
+                break;
+            case RIGHT:
+                sprite = ResourcesLoader.loadDrawableIgnoreErrors("Pacman state1 right.png");
+                break;
+            case LEFT:
+                sprite = ResourcesLoader.loadDrawableIgnoreErrors("Pacman state1 left.png");
+                break;
+        }
+    }
+
+    public int getScore(){
+        return score;
     }
 
     @Override

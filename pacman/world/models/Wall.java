@@ -11,7 +11,7 @@ public abstract class Wall extends DrawableObject {
     // =============================================================================================
     public final int row;
     public final int column;
-    public ObjectState state = ObjectState.NOTHING;
+    public ObjectState state;
     Image sprite;
     //protected SpriteSheetAnimator livingAnimator;
 	// =============================================================================================

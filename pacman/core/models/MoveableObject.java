@@ -1,12 +1,17 @@
 package pacman.core.models;
 
 import pacman.world.models.Direction;
+import pacman.world.models.GhostState;
+
+import java.awt.*;
 
 
-public abstract class MoveableObject extends DrawableObject {
+public class MoveableObject extends DrawableObject {
     public Direction direction=Direction.NONE;
-    private static final int DEFAULT_VELOCITY = 5;
-
+    public static final int DEFAULT_VELOCITY = 5;
+    protected static final int UPDATE_TO_CHANGE_SPRITE=4;
+    private GhostState state = GhostState.STILL;
+    protected Image sprite;
 
     public void move(){
         switch(this.direction){
@@ -25,4 +30,15 @@ public abstract class MoveableObject extends DrawableObject {
         }
     }
 
+    @Override
+    public void draw(Graphics g) {
+        switch (state) {
+            case STILL:
+                   // livingAnimator.drawNextFrame(g, x, y);
+                break;
+            case KILL:
+                //dyingAnimator.drawNextFrame(g, x, y);
+                break;
+        }
+    }
 }
