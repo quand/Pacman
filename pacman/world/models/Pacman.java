@@ -9,9 +9,6 @@ public class Pacman extends MoveableObject {
 
 
     public int score;
-    public int getCenterX() {
-        return x + width / 2;
-    }
 
     public Pacman() {
         sprite = ResourcesLoader.loadDrawableIgnoreErrors("Pacman state1 right.png");

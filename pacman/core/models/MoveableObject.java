@@ -10,7 +10,7 @@ public class MoveableObject extends DrawableObject {
     public Direction direction=Direction.NONE;
     public static final int DEFAULT_VELOCITY = 5;
     protected static final int UPDATE_TO_CHANGE_SPRITE=4;
-    private GhostState state = GhostState.STILL;
+    protected GhostState state;
     protected Image sprite;
 
     public void move(){
@@ -34,7 +34,7 @@ public class MoveableObject extends DrawableObject {
     public void draw(Graphics g) {
         switch (state) {
             case STILL:
-                   // livingAnimator.drawNextFrame(g, x, y);
+                g.drawImage(sprite, x, y, null);
                 break;
             case KILL:
                 //dyingAnimator.drawNextFrame(g, x, y);

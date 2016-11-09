@@ -6,6 +6,7 @@ import pacman.world.models.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Random;
 
 import static pacman.core.models.MoveableObject.DEFAULT_VELOCITY;
 
@@ -33,6 +34,7 @@ public class WorldManager extends BaseManager {
     private Pacman player;
     private ArrayList<Wall> field;
     private ArrayList<Corn> corns;
+    private ArrayList<Ghost> ghosts;
     private int enemiesVelocity;
     private boolean holdEnemies;
     // =============================================================================================
@@ -44,6 +46,8 @@ public class WorldManager extends BaseManager {
         field = new ArrayList<>();
         corns = new ArrayList<>();
 		initField();
+        ghosts = new ArrayList<>();
+        initGhost();
         /*enemiesVelocity = RandomUtils.nextBoolean() ? ENEMIES_FORMATION_X_VELOCITY : -ENEMIES_FORMATION_X_VELOCITY;*/
 
     }
@@ -56,17 +60,18 @@ public class WorldManager extends BaseManager {
         initPlayer();
         initBricksPosition();
         initCornPosition();
+        initGhostPosition();
     }
-
     @Override
     public void update() {
         processInput();
         updatePlayer();
+        updateGhosts();
         //updateEnemies();
     }
 
     @Override
-    public void render(Graphics g) 
+    public void render(Graphics g)
 	{
         player.draw(g);
         for (Wall brick : field) {
@@ -75,6 +80,93 @@ public class WorldManager extends BaseManager {
         for (Wall corn : corns) {
             corn.draw(g);
         }
+        for (Ghost ghost : ghosts)
+            ghost.draw(g);
+    }
+
+    // =============================================================================================
+    // GHOST
+    // =============================================================================================
+    private void initGhost(){
+        for (int i=0;i<4;i++){
+            ghosts.add(new Ghost(10,8,i+1));
+        }
+    }
+    private void initGhostPosition() {
+        Random random= new Random(3);
+        for (Ghost ghost : ghosts) {
+            ghost.x = ghost.column * CELL_WIDTH+random.nextInt(3)*CELL_WIDTH;
+            ghost.y = ghost.row * CELL_HEIGHT;
+        }
+    }
+    private void changeDirection(Ghost ghost){
+        Random random = new Random(4);
+        Direction dir = ghost.direction;
+        switch (random.nextInt(4)){
+            case 0: ghost.direction=Direction.LEFT;
+                break;
+            case 1: ghost.direction=Direction.TOP;
+                break;
+            case 2: ghost.direction=Direction.RIGHT;
+                break;
+            case 3: ghost.direction=Direction.DOWN;
+                break;
+        }
+        //ghost.direction=Direction.NONE;
+    }
+    private void moveGhost(){
+        for (Ghost ghost : ghosts)
+            ghost.move();
+    }
+    private void collisionGhost(){
+        for (Ghost ghost : ghosts)
+            switch (ghost.direction) {
+                case DOWN:
+                    for (Wall brick : field)
+                        if (brick.x+brick.width-ghost.x<=MISTAKE&&brick.x+brick.width-ghost.x>0)
+                            ghost.x=brick.x+brick.width;
+                        else if (ghost.x+ghost.width-brick.x<=MISTAKE&&ghost.x+ghost.width-brick.x>0)
+                            ghost.x=brick.x-CELL_WIDTH;
+                        else if (ghost.isIntersects(brick))
+                            ghost.y=brick.y-ghost.height;
+                    break;
+                case TOP:
+                    for (Wall brick : field)
+                        if (brick.x+brick.width-ghost.x<=MISTAKE&&brick.x+brick.width-ghost.x>0)
+                        {
+                            ghost.x=brick.x+brick.width;
+                        }
+                        else if (ghost.x+ghost.width-brick.x<=MISTAKE&&ghost.x+ghost.width-brick.x>0)
+                            ghost.x=brick.x-CELL_WIDTH;
+                        else if (ghost.isIntersects(brick)){
+                            ghost.y=brick.y+ghost.height;
+                            //changeDirection(ghost);
+                        }
+                    break;
+
+                case LEFT:
+                    for (Wall brick : field)
+                        if (ghost.y+ghost.height-brick.y<=MISTAKE&&ghost.y+ghost.height-brick.y>0)
+                            ghost.y=brick.y-CELL_HEIGHT;
+                        else if ((brick.y+brick.height)-ghost.y<=MISTAKE&&(brick.y+brick.height)-ghost.y>0)
+                            ghost.y=brick.y+brick.height;
+                        else if (ghost.isIntersects(brick))
+                            ghost.x=brick.x+ghost.width;
+                    break;
+                case RIGHT:
+                    for (Wall brick : field)
+                        if (ghost.y+ghost.height-brick.y<=MISTAKE&&ghost.y+ghost.height-brick.y>0)
+                            ghost.y=brick.y-CELL_HEIGHT;
+                        else if ((brick.y+brick.height)-ghost.y<=MISTAKE&&(brick.y+brick.height)-ghost.y>0)
+                            ghost.y=brick.y+brick.height;
+                        else if (ghost.isIntersects(brick))
+                            ghost.x=brick.x-ghost.width;
+                    break;
+            }
+    }
+    private void updateGhosts(){
+        moveGhost();
+        collisionGhost();
     }
     // =============================================================================================
     // PLAYER
