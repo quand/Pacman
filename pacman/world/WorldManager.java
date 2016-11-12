@@ -1,6 +1,8 @@
 package pacman.world;
 
 import pacman.core.models.BaseManager;
+import pacman.core.models.DrawableObject;
+import pacman.core.models.MoveableObject;
 import pacman.world.models.*;
 
 import java.awt.*;
@@ -35,7 +37,7 @@ public class WorldManager extends BaseManager {
     private ArrayList<Wall> field;
     private ArrayList<Corn> corns;
     private ArrayList<Ghost> ghosts;
-    Random random;
+    final ThreadLocal<Random> random = new ThreadLocal<>();
     private int enemiesVelocity;
     private boolean holdEnemies;
     // =============================================================================================
@@ -49,7 +51,7 @@ public class WorldManager extends BaseManager {
         initField();
         ghosts = new ArrayList<>();
         initGhost();
-        random = new Random();
+        random.set(new Random());
         /*enemiesVelocity = RandomUtils.nextBoolean() ? ENEMIES_FORMATION_X_VELOCITY : -ENEMIES_FORMATION_X_VELOCITY;*/
 
     }
@@ -90,9 +92,10 @@ public class WorldManager extends BaseManager {
     // GHOST
     // =============================================================================================
     private void initGhost(){
-        for (int i=0;i<4;i++){
-            ghosts.add(new Ghost(8,8+i,i+1));
+        for (int i=0;i<3;i++){
+            ghosts.add(new Ghost(10,8+i,i+1));
         }
+        ghosts.add(new Ghost(10,9,4));
     }
     private void initGhostPosition() {
         for (Ghost ghost : ghosts) {
@@ -103,7 +106,7 @@ public class WorldManager extends BaseManager {
 
     private void randomDirection(Ghost ghost,char[] canMove){
         Direction dir = ghost.direction;
-        int r = random.nextInt(4);
+        int r = random.get().nextInt(4);
         if (canMove[r]!='0')
         {
             switch (canMove[r]){
@@ -176,7 +179,7 @@ public class WorldManager extends BaseManager {
 
     }
 
-    void checkBrick(Ghost ghost){
+    private void checkBrick(Ghost ghost){
         char[] canMove = {'t','d','l','r'};
         for (Wall brick : field) {
             if ((ghost.row - 1 == brick.row && ghost.column == brick.column)||ghost.direction==Direction.DOWN)
@@ -188,7 +191,7 @@ public class WorldManager extends BaseManager {
             if ((ghost.row == brick.row && ghost.column + 1 == brick.column)||ghost.direction==Direction.LEFT)
                 canMove[3] = '0';
         }
-        if(checkMove(canMove)>1)
+        if(checkMove(canMove)>1&&ghost.placeChanged())
             randomDirection(ghost,canMove);
         else for (int i=0;i<4;i++)
             if (canMove[i]!='0')
@@ -206,36 +209,69 @@ public class WorldManager extends BaseManager {
             }
     }
 
-    void firstStep(){
+    private void firstStep(){
         for (Ghost ghost : ghosts) {
-            if (ghost.row==10&&ghost.column==9)
-                for (int i=0;i<8;i++)
+            if (ghost.x==9*CELL_WIDTH&&ghost.y==10*CELL_HEIGHT)
+                for (int i=0;i<12;i++)
                     ghost.y-=DEFAULT_VELOCITY;
+            else if (ghost.x==8*CELL_WIDTH&&ghost.y==10*CELL_HEIGHT) {
+                for (int i = 0; i < 6; i++)
+                    ghost.x += DEFAULT_VELOCITY;
+                for (int i=0;i<12;i++)
+                    ghost.y-=DEFAULT_VELOCITY;
+            }
+            else if(ghost.x==10*CELL_WIDTH&&ghost.y==10*CELL_HEIGHT){
+                for (int i=0;i<6;i++)
+                    ghost.x-=DEFAULT_VELOCITY;
+                for (int i=0;i<12;i++)
+                    ghost.y-=DEFAULT_VELOCITY;
+            }
+        }
+        Wall brick = new Brick(9,9);
+        if(!field.contains(brick))
+        {
+            field.add(brick);
+            brick.x = brick.column * CELL_WIDTH;
+            brick.y = brick.row * CELL_HEIGHT;
+
         }
     }
 
     private void updateGhosts(){
-        //firstStep();
+        firstStep();
         moveGhost();
-        increasePlace();
+        for (Ghost ghost : ghosts) {
+            increasePlace(ghost);
+        }
         changeDirection();
+        for (Ghost ghost : ghosts)
+            teleport(ghost);
     }
-    void increasePlace(){
+    private void increasePlace(MoveableObject object) {
+            for (Wall corn : corns) {
+                if (object.isIn(corn)) {
+                    object.prevColumn=object.column;
+                    object.prevRow=object.row;
+                    object.column=corn.column;
+                    object.row=corn.row;
+                }
+            }
+    }
 
-    }
     // =============================================================================================
     // PLAYER
     // =============================================================================================
     private void initPlayer() {
-        player.x = (int)player.column * CELL_WIDTH;
-        player.y = (int)player.row * CELL_HEIGHT;
+        player.x = player.column * CELL_WIDTH;
+        player.y = player.row * CELL_HEIGHT;
     }
 
     private void updatePlayer() {
         player.move();
         collision();
-        teleport();
+        teleport(player);
         eatCorn();
+        increasePlace(player);
         player.setImage(player.direction);
     }
 
@@ -291,7 +327,7 @@ public class WorldManager extends BaseManager {
             }
         }
     }
-    private void teleport(){
+    private void teleport(DrawableObject player){
         if(player.x+player.width>19*CELL_WIDTH&&player.y==10*CELL_HEIGHT)
         {
             player.y=10*CELL_HEIGHT;
@@ -321,9 +357,9 @@ public class WorldManager extends BaseManager {
 		{'1','1','1','1','0','1','1','1','0','1','0','1','1','1','0','1','1','1','1'},
 		{'*','*','*','1','0','1','0','0','0','0','0','0','0','1','0','1','*','*','*'},
 		{'1','1','1','1','0','1','0','1','1','*','1','1','0','1','0','1','1','1','1'},
-		{'*','*','*','*','0','0','0','1','*','*','*','1','0','0','0','*','*','*','*'},
+		{'0','0','0','0','0','0','0','1','*','*','*','1','0','0','0','0','0','0','0'},
 		{'1','1','1','1','0','1','0','1','1','1','1','1','0','1','0','1','1','1','1'},
-		{'*','*','*','1','0','1','0','0','0','*','0','0','0','1','0','1','*','*','*'},
+		{'*','*','*','1','0','1','0','0','0','0','0','0','0','1','0','1','*','*','*'},
 		{'1','1','1','1','0','1','0','1','1','1','1','1','0','1','0','1','1','1','1'},
 		{'1','0','0','0','0','0','0','0','0','1','0','0','0','0','0','0','0','0','1'},
 		{'1','0','1','1','0','1','1','1','0','1','0','1','1','1','0','1','1','0','1'},
