@@ -10,7 +10,9 @@ public class Pacman extends MoveableObject {
 
     public int score;
 
-    public Pacman() {
+    public Pacman(int column, int row) {
+        this.row=row;
+        this.column=column;
         sprite = ResourcesLoader.loadDrawableIgnoreErrors("Pacman state1 right.png");
         width = sprite.getWidth(null);
         height = sprite.getHeight(null);
