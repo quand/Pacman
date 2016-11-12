@@ -1,21 +1,21 @@
-package pacman.world.models;
+package pacman.world.models.ghosts;
 
 import pacman.core.models.MoveableObject;
 import pacman.utils.ResourcesLoader;
+import pacman.world.models.Direction;
+import pacman.world.models.GhostState;
 
-public class Ghost extends MoveableObject {
+public class ClydeGhost extends MoveableObject {
 
     private int id=0;
 
-    public Ghost(int row, int column,int id){
+    public ClydeGhost(int row, int column, int id){
         this.row = row;
         this.id = id;
-        this.prevRow=row;
-        this.prevColumn=column;
-        direction=Direction.TOP;
+        direction= Direction.LEFT;
         this.column = column;
-        state = GhostState.STILL;
-        sprite = ResourcesLoader.loadDrawableIgnoreErrors("ghost"+id+".png");
+        state = GhostState.CHASE;
+        sprite = ResourcesLoader.loadDrawableIgnoreErrors("ghost1.png");
         width = sprite.getWidth(null);
         height = sprite.getHeight(null);
     }

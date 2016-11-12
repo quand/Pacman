@@ -4,6 +4,7 @@ import pacman.core.models.BaseManager;
 import pacman.core.models.DrawableObject;
 import pacman.core.models.MoveableObject;
 import pacman.world.models.*;
+import pacman.world.models.ghosts.ClydeGhost;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -36,7 +37,7 @@ public class WorldManager extends BaseManager {
     private Pacman player;
     private ArrayList<Wall> field;
     private ArrayList<Corn> corns;
-    private ArrayList<Ghost> ghosts;
+    private ArrayList<ClydeGhost> clydeGhosts;
     final ThreadLocal<Random> random = new ThreadLocal<>();
     private int enemiesVelocity;
     private boolean holdEnemies;
@@ -49,8 +50,8 @@ public class WorldManager extends BaseManager {
         field = new ArrayList<>();
         corns = new ArrayList<>();
         initField();
-        ghosts = new ArrayList<>();
-        initGhost();
+        clydeGhosts = new ArrayList<>();
+        //initGhost();
         random.set(new Random());
         /*enemiesVelocity = RandomUtils.nextBoolean() ? ENEMIES_FORMATION_X_VELOCITY : -ENEMIES_FORMATION_X_VELOCITY;*/
 
@@ -64,13 +65,13 @@ public class WorldManager extends BaseManager {
         initPlayer();
         initBricksPosition();
         initCornPosition();
-        initGhostPosition();
+        //initGhostPosition();
     }
     @Override
     public void update() {
         processInput();
         updatePlayer();
-        updateGhosts();
+        //updateGhosts();
         //updateEnemies();
     }
 
@@ -84,178 +85,22 @@ public class WorldManager extends BaseManager {
         for (Wall corn : corns) {
             corn.draw(g);
         }
-        for (Ghost ghost : ghosts)
-            ghost.draw(g);
+        for (ClydeGhost clydeGhost : clydeGhosts)
+            clydeGhost.draw(g);
     }
 
     // =============================================================================================
     // GHOST
     // =============================================================================================
-    private void initGhost(){
-        for (int i=0;i<3;i++){
-            ghosts.add(new Ghost(10,8+i,i+1));
-        }
-        ghosts.add(new Ghost(10,9,4));
-    }
-    private void initGhostPosition() {
-        for (Ghost ghost : ghosts) {
-            ghost.x = ghost.column * CELL_WIDTH;
-            ghost.y = ghost.row * CELL_HEIGHT;
-        }
-    }
-
-    private void randomDirection(Ghost ghost,char[] canMove){
-        Direction dir = ghost.direction;
-        int r = random.get().nextInt(4);
-        if (canMove[r]!='0')
-        {
-            switch (canMove[r]){
-                case 't': ghost.direction=Direction.TOP;
-                    break;
-                case 'd': ghost.direction=Direction.DOWN;
-                    break;
-                case 'l': ghost.direction=Direction.LEFT;
-                    break;
-                case 'r': ghost.direction=Direction.RIGHT;
-                    break;
-            }
-        }
-        else randomDirection(ghost,canMove);
-    }
-    private void moveGhost(){
-        for (Ghost ghost : ghosts)
-            ghost.move();
-
-    }
-    private void collisionG(){
-        for (Ghost ghost:ghosts)
-        {
-            switch (ghost.direction) {
-                case DOWN:
-                    for (Wall brick : field)
-                        if (ghost.isIntersects(brick))
-                            ghost.y = brick.y - ghost.height;
-                    break;
-                case TOP:
-                    for (Wall brick : field)
-                        if (ghost.isIntersects(brick)){
-                            ghost.y=brick.y+ghost.height;
-                        }
-                    break;
-
-                case LEFT:
-                    for (Wall brick : field)
-                        if (ghost.isIntersects(brick))
-                            ghost.x=brick.x+ghost.width;
-                    break;
-                case RIGHT:
-                    for (Wall brick : field)
-                        if (ghost.isIntersects(brick))
-                            ghost.x=brick.x-ghost.width;
-                    break;
-            }
-
-        }
-    }
-    private int checkMove(char[] canMove){
-        int sum=0;
-        for (int i=0;i<4;i++)
-            if (canMove[i]!='0')
-                sum++;
-        return sum;
-    }
-
-    private void changeDirection(){
-        collisionG();
-        checkBlock();
-        //for (int i=0;i<6;i++)
-    }
-
-
-    private void checkBlock(){
-        for (Ghost ghost : ghosts) {
-            checkBrick(ghost);
-        }
-
-    }
-
-    private void checkBrick(Ghost ghost){
-        char[] canMove = {'t','d','l','r'};
-        for (Wall brick : field) {
-            if ((ghost.row - 1 == brick.row && ghost.column == brick.column)||ghost.direction==Direction.DOWN)
-                canMove[0] = '0';
-            if ((ghost.row + 1 == brick.row && ghost.column == brick.column)||ghost.direction==Direction.TOP)
-                canMove[1] = '0';
-            if ((ghost.row == brick.row && ghost.column - 1 == brick.column)||ghost.direction==Direction.RIGHT)
-                canMove[2] = '0';
-            if ((ghost.row == brick.row && ghost.column + 1 == brick.column)||ghost.direction==Direction.LEFT)
-                canMove[3] = '0';
-        }
-        if(checkMove(canMove)>1&&ghost.placeChanged())
-            randomDirection(ghost,canMove);
-        else for (int i=0;i<4;i++)
-            if (canMove[i]!='0')
-            {
-                switch (canMove[i]){
-                    case 't': ghost.direction=Direction.TOP;
-                        break;
-                    case 'd': ghost.direction=Direction.DOWN;
-                        break;
-                    case 'l': ghost.direction=Direction.LEFT;
-                        break;
-                    case 'r': ghost.direction=Direction.RIGHT;
-                        break;
-                }
-            }
-    }
-
-    private void firstStep(){
-        for (Ghost ghost : ghosts) {
-            if (ghost.x==9*CELL_WIDTH&&ghost.y==10*CELL_HEIGHT)
-                for (int i=0;i<12;i++)
-                    ghost.y-=DEFAULT_VELOCITY;
-            else if (ghost.x==8*CELL_WIDTH&&ghost.y==10*CELL_HEIGHT) {
-                for (int i = 0; i < 6; i++)
-                    ghost.x += DEFAULT_VELOCITY;
-                for (int i=0;i<12;i++)
-                    ghost.y-=DEFAULT_VELOCITY;
-            }
-            else if(ghost.x==10*CELL_WIDTH&&ghost.y==10*CELL_HEIGHT){
-                for (int i=0;i<6;i++)
-                    ghost.x-=DEFAULT_VELOCITY;
-                for (int i=0;i<12;i++)
-                    ghost.y-=DEFAULT_VELOCITY;
-            }
-        }
-        Wall brick = new Brick(9,9);
-        if(!field.contains(brick))
-        {
-            field.add(brick);
-            brick.x = brick.column * CELL_WIDTH;
-            brick.y = brick.row * CELL_HEIGHT;
-
-        }
-    }
-
-    private void updateGhosts(){
-        firstStep();
-        moveGhost();
-        for (Ghost ghost : ghosts) {
-            increasePlace(ghost);
-        }
-        changeDirection();
-        for (Ghost ghost : ghosts)
-            teleport(ghost);
-    }
     private void increasePlace(MoveableObject object) {
-            for (Wall corn : corns) {
-                if (object.isIn(corn)) {
-                    object.prevColumn=object.column;
-                    object.prevRow=object.row;
-                    object.column=corn.column;
-                    object.row=corn.row;
-                }
+        for (Wall corn : corns) {
+            if (object.isIn(corn)) {
+                object.prevColumn=object.column;
+                object.prevRow=object.row;
+                object.column=corn.column;
+                object.row=corn.row;
             }
+        }
     }
 
     // =============================================================================================
