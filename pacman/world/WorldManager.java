@@ -4,6 +4,7 @@ import pacman.core.models.BaseManager;
 import pacman.core.models.DrawableObject;
 import pacman.core.models.MoveableObject;
 import pacman.world.models.*;
+import pacman.world.models.ghosts.BlinkyGhost;
 import pacman.world.models.ghosts.ClydeGhost;
 
 import java.awt.*;
@@ -38,6 +39,7 @@ public class WorldManager extends BaseManager {
     private ArrayList<Wall> field;
     private ArrayList<Corn> corns;
     private ArrayList<ClydeGhost> clydeGhosts;
+    private ArrayList<BlinkyGhost> blinkyGhosts;
     final ThreadLocal<Random> random = new ThreadLocal<>();
     private int enemiesVelocity;
     private boolean holdEnemies;
@@ -51,6 +53,7 @@ public class WorldManager extends BaseManager {
         corns = new ArrayList<>();
         initField();
         clydeGhosts = new ArrayList<>();
+        blinkyGhosts = new ArrayList<>();
         //initGhost();
         random.set(new Random());
         /*enemiesVelocity = RandomUtils.nextBoolean() ? ENEMIES_FORMATION_X_VELOCITY : -ENEMIES_FORMATION_X_VELOCITY;*/
@@ -65,12 +68,14 @@ public class WorldManager extends BaseManager {
         initPlayer();
         initBricksPosition();
         initCornPosition();
+        initBlinkyGhost();
         //initGhostPosition();
     }
     @Override
     public void update() {
         processInput();
         updatePlayer();
+        updateBlinkyGhost();
         //updateGhosts();
         //updateEnemies();
     }
@@ -85,13 +90,33 @@ public class WorldManager extends BaseManager {
         for (Wall corn : corns) {
             corn.draw(g);
         }
-        for (ClydeGhost clydeGhost : clydeGhosts)
+        for (ClydeGhost clydeGhost : clydeGhosts) {
             clydeGhost.draw(g);
+        }
+        for (BlinkyGhost blinkyGhost : blinkyGhosts){
+            blinkyGhost.draw(g);
+        }
     }
 
     // =============================================================================================
     // GHOST
     // =============================================================================================
+
+    //BLINKYGHOST//
+    private void initBlinkyGhost(){
+        blinkyGhosts.add(new BlinkyGhost(8,9));
+    }
+
+    private void updateBlinkyGhost(){
+        for (BlinkyGhost blinky : blinkyGhosts) {
+            blinky.x = blinky.column * CELL_WIDTH;
+            blinky.y = blinky.row * CELL_HEIGHT;
+        }
+    }
+
+
+    //////////////
+
     private void increasePlace(MoveableObject object) {
         for (Wall corn : corns) {
             if (object.isIn(corn)) {

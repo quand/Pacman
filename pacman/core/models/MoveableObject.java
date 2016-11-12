@@ -41,12 +41,12 @@ public class MoveableObject extends DrawableObject {
     @Override
     public void draw(Graphics g) {
         switch (state) {
-            case STILL:
+            case CHASE:
                 g.drawImage(sprite, x, y, null);
                 break;
-            case KILL:
+           /* case KILL:
                 //dyingAnimator.drawNextFrame(g, x, y);
-                break;
+                break;*/
         }
     }
 }
